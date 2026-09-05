@@ -1,4 +1,4 @@
-// BookBeacon — Stripe webhook handler
+// BookBeacon netlify/functions/stripe-webhook.mjs
 //
 // Listens for `checkout.session.completed` events from Stripe and marks the
 // matching BookBeacon user as paid in Supabase. Written with zero npm
