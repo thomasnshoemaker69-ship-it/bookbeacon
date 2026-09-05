@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Free & Paid Book Promotion Sites — Filterable Directory | BookBeacon</title>
+<meta name="description" content="A filterable, kept-current directory of free and paid book promotion sites for self-published authors — sorted by genre fit, cost, and platform requirements (Amazon-exclusive vs. wide). Browse free, no account needed.">
+<link rel="canonical" href="https://bookbeacon-app.netlify.app/directory.html">
+<style>
+  :root {
+    --bg: #faf8f5;
+    --card: #ffffff;
+    --ink: #2b2420;
+    --ink-soft: #6b6259;
+    --line: #e8e1d8;
+    --accent: #7a4f9e;
+    --accent-soft: #f1e9f7;
+    --free: #2f7d5c;
+    --free-bg: #e6f4ee;
+    --paid: #a15c1f;
+    --paid-bg: #f8ecdc;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    line-height: 1.5;
+  }
+  header, .controls, main, footer, .cta-band-inner {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+  header { padding-top: 24px; padding-bottom: 8px; }
+  h1 { font-size: 1.6rem; margin: 0 0 6px; }
+  .sub { color: var(--ink-soft); font-size: 0.95rem; margin: 0 0 4px; max-width: 680px; }
+  nav.top { font-size: 0.85rem; margin-top: 10px; }
+  nav.top a { color: var(--accent); text-decoration: none; font-weight: 600; margin-right: 16px; }
+
+  .cta-band { background: var(--accent-soft); border-top: 1px solid #e0cdec; border-bottom: 1px solid #e0cdec; margin: 18px 0; }
+  .cta-band-inner { padding-top: 12px; padding-bottom: 12px; display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; font-size: 0.88rem; color: #52356b; }
+  .cta-band-inner a.btn {
+    background: var(--accent); color: #fff; text-decoration: none; font-weight: 700;
+    padding: 8px 16px; border-radius: 8px; font-size: 0.85rem; white-space: nowrap;
+  }
+
+  .controls { padding-bottom: 10px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+  input[type="text"].search { flex: 1 1 220px; padding: 9px 12px; border: 1px solid var(--line); border-radius: 8px; font-size: 0.9rem; background: var(--card); color: var(--ink); }
+  select.filter { padding: 9px 10px; border: 1px solid var(--line); border-radius: 8px; font-size: 0.9rem; background: var(--card); color: var(--ink); }
+  label.chip { display: inline-flex; align-items: center; gap: 6px; font-size: 0.85rem; color: var(--ink-soft); background: var(--card); border: 1px solid var(--line); padding: 8px 12px; border-radius: 8px; cursor: pointer; user-select: none; }
+  .count { max-width: 1000px; margin: 0 auto; padding: 0 20px 6px; font-size: 0.82rem; color: var(--ink-soft); }
+
+  main { padding-top: 6px; padding-bottom: 60px; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 8px; }
+  .card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+  .card-top h3 { margin: 0; font-size: 1rem; }
+  .cost-tag { font-size: 0.72rem; font-weight: 600; padding: 3px 8px; border-radius: 999px; white-space: nowrap; }
+  .cost-free { background: var(--free-bg); color: var(--free); }
+  .cost-paid { background: var(--paid-bg); color: var(--paid); }
+  .meta { font-size: 0.82rem; color: var(--ink-soft); }
+  .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 2px; }
+  .tag { font-size: 0.72rem; background: #f2efe9; color: #5c5348; padding: 2px 8px; border-radius: 999px; }
+  .card-actions { margin-top: auto; display: flex; gap: 8px; align-items: center; padding-top: 8px; border-top: 1px solid var(--line); }
+  .card-actions a { font-size: 0.82rem; color: var(--accent); text-decoration: none; font-weight: 600; }
+  .card-actions .track-hint { margin-left: auto; font-size: 0.76rem; color: var(--ink-soft); font-style: italic; }
+
+  footer { font-size: 0.82rem; color: var(--ink-soft); padding-bottom: 40px; }
+  footer a { color: var(--accent); }
+  .empty-state { grid-column: 1 / -1; color: var(--ink-soft); font-size: 0.9rem; padding: 30px 0; text-align: center; }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #1c1a18; --card: #26231f; --ink: #f1ece4; --ink-soft: #a89e91;
+      --line: #3a352e; --accent: #c79fe8; --accent-soft: #332a3d;
+      --free: #7fd6ac; --free-bg: #1e3329; --paid: #e0a866; --paid-bg: #3a2c1a;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #1c1a18; --card: #26231f; --ink: #f1ece4; --ink-soft: #a89e91;
+    --line: #3a352e; --accent: #c79fe8; --accent-soft: #332a3d;
+    --free: #7fd6ac; --free-bg: #1e3329; --paid: #e0a866; --paid-bg: #3a2c1a;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Free & paid book promotion sites, filterable</h1>
+  <p class="sub">A directory of book-promo and discount-listing sites for self-published authors — sorted by cost, genre fit, and platform requirements. Kept current, unlike a static blog roundup.</p>
+  <nav class="top"><a href="/">Home</a><a href="/app.html">Sign in / My books</a></nav>
+</header>
+
+<div class="cta-band">
+  <div class="cta-band-inner">
+    <span>Want to track which of these you've submitted each of your books to? A free account keeps score for you.</span>
+    <a class="btn" href="/app.html">Create a free account →</a>
+  </div>
+</div>
+
+<div class="controls">
+  <input type="text" class="search" id="search" placeholder="Search by name…">
+  <select class="filter" id="costFilter">
+    <option value="all">Free or paid</option>
+    <option value="free">Free only</option>
+    <option value="paid">Paid only</option>
+  </select>
+  <select class="filter" id="genreFilter">
+    <option value="all">Any genre</option>
+    <option value="fiction">Fiction-friendly</option>
+    <option value="scifi-fantasy">Sci-fi / Fantasy focus</option>
+    <option value="romance">Romance focus</option>
+  </select>
+  <label class="chip"><input type="checkbox" id="familyOnly"> Family-friendly only (no erotica)</label>
+</div>
+<div class="count" id="count"></div>
+
+<main id="grid"></main>
+
+<footer>
+  <p>BookBeacon's directory is curated by hand and cross-referenced from public promo-site roundups. Missing a site, or found one that's gone stale? <a href="mailto:thomasnshoemaker69@gmail.com">Let us know</a>.</p>
+  <p><a href="/app.html">Create a free account</a> to track submissions across your books — $15 once unlocks unlimited tracking, no subscription.</p>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script>
+const SUPABASE_URL = 'https://nlhgswqvsnporitagaoq.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_w98aoIVOMDLyghxx3AH16Q_8Y7QOjdm';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+let listings = [];
+
+async function loadListings() {
+  const { data, error } = await sb.from('promo_listings').select('*').eq('active', true).order('name');
+  if (!error) listings = data || [];
+  render();
+  injectStructuredData();
+}
+
+function render() {
+  const q = document.getElementById('search').value.trim().toLowerCase();
+  const costF = document.getElementById('costFilter').value;
+  const genreF = document.getElementById('genreFilter').value;
+  const familyOnly = document.getElementById('familyOnly').checked;
+
+  const filtered = listings.filter(l => {
+    if (q && !l.name.toLowerCase().includes(q)) return false;
+    if (costF !== 'all' && l.cost !== costF) return false;
+    if (genreF !== 'all' && !(l.genres || []).includes(genreF)) return false;
+    if (familyOnly && !l.family_friendly) return false;
+    return true;
+  });
+
+  document.getElementById('count').textContent = listings.length
+    ? `${filtered.length} of ${listings.length} listings`
+    : '';
+
+  const grid = document.getElementById('grid');
+  if (!listings.length) {
+    grid.innerHTML = '<div class="empty-state">Loading the directory…</div>';
+    return;
+  }
+  if (!filtered.length) {
+    grid.innerHTML = '<div class="empty-state">No listings match those filters.</div>';
+    return;
+  }
+  grid.innerHTML = filtered.map(l => `
+    <div class="card">
+      <div class="card-top">
+        <h3>${l.name}</h3>
+        <span class="cost-tag ${l.cost === 'free' ? 'cost-free' : 'cost-paid'}">${l.cost === 'free' ? 'Free' : 'Paid'}</span>
+      </div>
+      <div class="meta">${l.price_text || ''}</div>
+      <div class="meta">${l.notes || ''}</div>
+      <div class="tags">${(l.genres || []).map(g => `<span class="tag">${g.replace('-', ' / ')}</span>`).join('')}${l.family_friendly ? '<span class="tag">family-friendly</span>' : ''}</div>
+      <div class="card-actions">
+        <a href="${l.url}" target="_blank" rel="noopener">Visit site →</a>
+        <span class="track-hint">Sign up free to track this</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+function injectStructuredData() {
+  if (!listings.length || document.getElementById('ld-json')) return;
+  const data = {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    name: 'Book promotion site directory',
+    itemListElement: listings.slice(0, 50).map((l, i) => ({
+      '@type': 'ListItem',
+      position: i + 1,
+      name: l.name,
+      url: l.url,
+    })),
+  };
+  const script = document.createElement('script');
+  script.id = 'ld-json';
+  script.type = 'application/ld+json';
+  script.textContent = JSON.stringify(data);
+  document.head.appendChild(script);
+}
+
+['search', 'costFilter', 'genreFilter'].forEach(id => document.getElementById(id).addEventListener('input', render));
+document.getElementById('familyOnly').addEventListener('change', render);
+
+loadListings();
+</script>
+
+</body>
+</html>

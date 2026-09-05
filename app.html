@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BookBeacon</title>
+<style>
+  :root {
+    --bg: #faf8f5;
+    --card: #ffffff;
+    --ink: #2b2420;
+    --ink-soft: #6b6259;
+    --line: #e8e1d8;
+    --accent: #7a4f9e;
+    --accent-soft: #f1e9f7;
+    --free: #2f7d5c;
+    --free-bg: #e6f4ee;
+    --paid: #a15c1f;
+    --paid-bg: #f8ecdc;
+    --err: #b23b3b;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    line-height: 1.5;
+  }
+  header, .panel, .controls, main, footer, .authwrap {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+  header { padding-top: 24px; padding-bottom: 12px; display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap; }
+  h1 { font-size: 1.5rem; margin: 0 0 4px; }
+  h2 { font-size: 1.05rem; margin: 0 0 10px; }
+  .sub { color: var(--ink-soft); font-size: 0.92rem; margin: 0 0 14px; max-width: 640px; }
+  .note {
+    max-width: 1000px; margin: 0 auto 16px; padding: 0 20px;
+  }
+  .note-inner {
+    background: var(--accent-soft);
+    border: 1px solid #e0cdec;
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 0.85rem;
+    color: #52356b;
+    max-width: 680px;
+  }
+
+  .userbar { font-size: 0.85rem; color: var(--ink-soft); text-align: right; }
+  .userbar strong { color: var(--ink); }
+  .userbar button { margin-left: 8px; }
+
+  .authwrap { padding-top: 10px; padding-bottom: 20px; }
+  .auth-card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 22px 24px;
+    max-width: 380px;
+  }
+  .auth-card input {
+    width: 100%;
+    padding: 9px 11px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    font-size: 0.9rem;
+    background: var(--bg);
+    color: var(--ink);
+    margin-bottom: 10px;
+  }
+  .auth-actions { display: flex; gap: 8px; margin-bottom: 8px; }
+  .auth-msg { font-size: 0.82rem; margin-top: 6px; }
+  .auth-msg.error { color: var(--err); }
+  .auth-msg.notice { color: var(--free); }
+
+  .panel {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 18px 20px;
+    margin-bottom: 16px;
+  }
+  .panel-inner { max-width: 960px; }
+
+  .book-form { display: grid; grid-template-columns: 1.2fr 1fr 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+  .book-form input, .book-form select {
+    padding: 9px 11px; border: 1px solid var(--line); border-radius: 8px;
+    font-size: 0.88rem; background: var(--bg); color: var(--ink); width: 100%;
+  }
+  textarea.book-blurb {
+    width: 100%; padding: 9px 11px; border: 1px solid var(--line); border-radius: 8px;
+    font-size: 0.88rem; background: var(--bg); color: var(--ink); font-family: inherit;
+    resize: vertical; min-height: 60px; margin-bottom: 10px;
+  }
+  .links-row { display: flex; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
+  .links-row select, .links-row input {
+    padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px;
+    font-size: 0.85rem; background: var(--bg); color: var(--ink);
+  }
+  .links-row select { flex: 0 0 140px; }
+  .links-row input { flex: 1 1 220px; }
+  .btn { padding: 8px 14px; border: none; border-radius: 8px; background: var(--accent); color: white; font-size: 0.85rem; font-weight: 600; cursor: pointer; }
+  .btn.secondary { background: transparent; color: var(--accent); border: 1px solid var(--accent); }
+  .btn.small { padding: 5px 10px; font-size: 0.78rem; }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .pending-links { display: flex; flex-direction: column; gap: 4px; margin: 6px 0 10px; }
+  .pending-link { font-size: 0.82rem; color: var(--ink-soft); display: flex; gap: 8px; align-items: center; }
+  .pending-link button { border: none; background: none; color: var(--err); cursor: pointer; font-size: 0.78rem; }
+
+  .book-list { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 4px; }
+  .book-chip { border: 2px solid var(--line); background: var(--bg); border-radius: 10px; padding: 10px 14px; cursor: pointer; font-size: 0.85rem; min-width: 200px; }
+  .book-chip.active { border-color: var(--accent); background: var(--accent-soft); }
+  .book-chip .bctitle { font-weight: 700; margin-bottom: 2px; }
+  .book-chip .bcmeta { color: var(--ink-soft); font-size: 0.78rem; }
+  .book-chip .bclinks { margin-top: 6px; display: flex; flex-direction: column; gap: 3px; }
+  .book-chip .bclinks a { font-size: 0.76rem; color: var(--accent); text-decoration: none; }
+  .empty-hint { color: var(--ink-soft); font-size: 0.85rem; font-style: italic; }
+
+  .active-book-banner { max-width: 1000px; margin: 0 auto 10px; padding: 0 20px; font-size: 0.85rem; color: var(--ink-soft); }
+  .active-book-banner strong { color: var(--ink); }
+
+  .controls { padding-bottom: 10px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+  input[type="text"].search { flex: 1 1 220px; padding: 9px 12px; border: 1px solid var(--line); border-radius: 8px; font-size: 0.9rem; background: var(--card); color: var(--ink); }
+  select.filter { padding: 9px 10px; border: 1px solid var(--line); border-radius: 8px; font-size: 0.9rem; background: var(--card); color: var(--ink); }
+  label.chip { display: inline-flex; align-items: center; gap: 6px; font-size: 0.85rem; color: var(--ink-soft); background: var(--card); border: 1px solid var(--line); padding: 8px 12px; border-radius: 8px; cursor: pointer; user-select: none; }
+  .count { font-size: 0.82rem; color: var(--ink-soft); padding-bottom: 6px; }
+
+  main { padding-top: 6px; padding-bottom: 60px; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 8px; position: relative; }
+  .card.match { border-color: var(--free); }
+  .fit-badge { position: absolute; top: -9px; right: 12px; background: var(--free); color: white; font-size: 0.68rem; font-weight: 700; padding: 2px 8px; border-radius: 999px; }
+  .card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+  .card-top h3 { margin: 0; font-size: 1rem; }
+  .cost-tag { font-size: 0.72rem; font-weight: 600; padding: 3px 8px; border-radius: 999px; white-space: nowrap; }
+  .cost-free { background: var(--free-bg); color: var(--free); }
+  .cost-paid { background: var(--paid-bg); color: var(--paid); }
+  .meta { font-size: 0.82rem; color: var(--ink-soft); }
+  .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 2px; }
+  .tag { font-size: 0.72rem; background: #f2efe9; color: #5c5348; padding: 2px 8px; border-radius: 999px; }
+  .card-actions { margin-top: auto; display: flex; gap: 8px; align-items: center; padding-top: 8px; border-top: 1px solid var(--line); }
+  .card-actions a { font-size: 0.82rem; color: var(--accent); text-decoration: none; font-weight: 600; }
+  .card-actions select { margin-left: auto; font-size: 0.78rem; padding: 5px 6px; border-radius: 6px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); }
+
+  footer { font-size: 0.8rem; color: var(--ink-soft); padding-bottom: 40px; }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #1c1a18; --card: #26231f; --ink: #f1ece4; --ink-soft: #a89e91;
+      --line: #3a352e; --accent: #c79fe8; --accent-soft: #332a3d;
+      --free: #7fd6ac; --free-bg: #1e3329; --paid: #e0a866; --paid-bg: #3a2c1a;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #1c1a18; --card: #26231f; --ink: #f1ece4; --ink-soft: #a89e91;
+    --line: #3a352e; --accent: #c79fe8; --accent-soft: #332a3d;
+    --free: #7fd6ac; --free-bg: #1e3329; --paid: #e0a866; --paid-bg: #3a2c1a;
+  }
+  @media (max-width: 640px) { .book-form { grid-template-columns: 1fr; } }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>BookBeacon</h1>
+    <p class="sub">Find where to promote your book — filterable by cost and genre fit, with a per-book submission tracker.</p>
+    <p style="margin:0 0 10px;"><a href="/" style="color:var(--accent);font-size:0.85rem;text-decoration:none;font-weight:600;">← Home</a> &nbsp; <a href="/directory.html" style="color:var(--accent);font-size:0.85rem;text-decoration:none;font-weight:600;">Browse directory without an account</a></p>
+  </div>
+  <div class="userbar" id="userBar"></div>
+</header>
+
+<div class="note"><div class="note-inner">The directory is curated by hand — cross-referenced from public promo-site roundups and structured with genre/cost/requirement details those lists don't organize well. Real, saved-to-your-account data now: add a book once, it's there next time you visit.</div></div>
+
+<div class="authwrap" id="authWrap">
+  <div class="auth-card">
+    <h2>Sign in or create an account</h2>
+    <input type="email" id="authEmail" placeholder="Email">
+    <input type="password" id="authPassword" placeholder="Password (6+ characters)">
+    <div class="auth-actions">
+      <button class="btn" id="authSignInBtn">Log in</button>
+      <button class="btn secondary" id="authSignUpBtn">Sign up</button>
+    </div>
+    <div class="auth-msg" id="authMsg"></div>
+  </div>
+</div>
+
+<section class="panel" id="myBooksPanel" hidden>
+  <div class="panel-inner">
+    <h2>My Books</h2>
+    <p class="sub" style="margin-top:-6px;">Free plan: track up to 5 listings across all your books. $15 once unlocks unlimited tracking, forever.</p>
+    <div class="book-form">
+      <input type="text" id="bookTitle" placeholder="Book title">
+      <input type="text" id="bookAuthor" placeholder="Author / pen name">
+      <input type="text" id="bookGenre" placeholder="Genre (e.g. Dark Fantasy)">
+      <select id="bookPriceStatus">
+        <option value="free">Currently free</option>
+        <option value="discounted">Currently discounted (99¢–$2.99)</option>
+        <option value="full">Full price</option>
+      </select>
+    </div>
+
+    <textarea class="book-blurb" id="bookDescription" placeholder="Short summary / blurb (1-3 sentences) — this gets included in the submission info you copy for each site"></textarea>
+
+    <div class="links-row">
+      <select id="linkPlatform">
+        <option>Amazon</option>
+        <option>Apple Books</option>
+        <option>Kobo</option>
+        <option>Barnes & Noble</option>
+        <option>Google Play</option>
+        <option>Other / Direct</option>
+      </select>
+      <input type="text" id="linkUrl" placeholder="Paste the sales link for that platform">
+      <button class="btn secondary small" id="addLinkBtn">+ Add link</button>
+    </div>
+    <div class="pending-links" id="pendingLinks"></div>
+
+    <button class="btn" id="addBookBtn">Add this book</button>
+
+    <div class="book-list" id="bookList"></div>
+  </div>
+</section>
+
+<div class="active-book-banner" id="activeBanner"></div>
+
+<div class="controls">
+  <input type="text" class="search" id="search" placeholder="Search by name…">
+  <select class="filter" id="costFilter">
+    <option value="all">Free or paid</option>
+    <option value="free">Free only</option>
+    <option value="paid">Paid only</option>
+  </select>
+  <select class="filter" id="genreFilter">
+    <option value="all">Any genre</option>
+    <option value="fiction">Fiction-friendly</option>
+    <option value="scifi-fantasy">Sci-fi / Fantasy focus</option>
+    <option value="romance">Romance focus</option>
+  </select>
+  <label class="chip"><input type="checkbox" id="familyOnly"> Family-friendly only (no erotica)</label>
+</div>
+<div class="count" id="count"></div>
+
+<main id="grid"></main>
+
+<footer>BookBeacon — a free account lets you track submissions across all your books, saved permanently.</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script>
+const SUPABASE_URL = 'https://nlhgswqvsnporitagaoq.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_w98aoIVOMDLyghxx3AH16Q_8Y7QOjdm';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+let currentUser = null;
+let listings = [];
+let books = [];
+let activeBookId = null;
+let pendingLinks = [];
+let submissionStatuses = {}; // key `${bookId}::${listingId}` -> status
+let currentProfile = { paid: false };
+let trackedCount = 0;
+const FREE_TRACK_LIMIT = 5;
+// TODO: once Stripe is verified, create a $15 one-time Payment Link and paste its URL here.
+const STRIPE_PAYMENT_LINK_URL = 'REPLACE_WITH_STRIPE_PAYMENT_LINK_URL';
+
+function guessGenreTags(genreText) {
+  const g = (genreText || '').toLowerCase();
+  const tags = ['fiction'];
+  if (g.includes('fantasy') || g.includes('sci-fi') || g.includes('scifi') || g.includes('science fiction')) tags.push('scifi-fantasy');
+  if (g.includes('romance')) tags.push('romance');
+  return tags;
+}
+
+function copyToClipboard(text, btn) {
+  const done = () => { const old = btn.textContent; btn.textContent = 'Copied!'; setTimeout(() => btn.textContent = old, 1200); };
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(done).catch(() => alert(text));
+  } else {
+    alert(text);
+  }
+}
+
+function showAuthMsg(text, isError) {
+  const el = document.getElementById('authMsg');
+  el.textContent = text;
+  el.className = 'auth-msg ' + (isError ? 'error' : 'notice');
+}
+
+function updateAuthUI() {
+  const userBar = document.getElementById('userBar');
+  const authWrap = document.getElementById('authWrap');
+  const myBooksPanel = document.getElementById('myBooksPanel');
+  if (currentUser) {
+    const planHtml = currentProfile.paid
+      ? `<span style="color:var(--free);font-weight:700;">BookBeacon Full ✓</span>`
+      : `<span>Free plan — ${trackedCount}/${FREE_TRACK_LIMIT} tracked</span> <button class="btn small" id="upgradeBtn">Upgrade — $15 one-time</button>`;
+    userBar.innerHTML = `${planHtml}<br>Signed in as <strong>${currentUser.email}</strong> <button class="btn small secondary" id="signOutBtn">Sign out</button>`;
+    document.getElementById('signOutBtn').addEventListener('click', () => sb.auth.signOut());
+    const upgradeBtn = document.getElementById('upgradeBtn');
+    if (upgradeBtn) {
+      upgradeBtn.addEventListener('click', () => {
+        if (STRIPE_PAYMENT_LINK_URL.startsWith('REPLACE_')) {
+          alert('Payments aren\'t switched on yet — check back soon!');
+          return;
+        }
+        window.location.href = `${STRIPE_PAYMENT_LINK_URL}?client_reference_id=${currentUser.id}`;
+      });
+    }
+    authWrap.hidden = true;
+    myBooksPanel.hidden = false;
+  } else {
+    userBar.innerHTML = '';
+    authWrap.hidden = false;
+    myBooksPanel.hidden = true;
+  }
+}
+
+document.getElementById('authSignUpBtn').addEventListener('click', async () => {
+  const email = document.getElementById('authEmail').value.trim();
+  const password = document.getElementById('authPassword').value;
+  if (!email || password.length < 6) { showAuthMsg('Enter an email and a password of at least 6 characters.', true); return; }
+  const { error } = await sb.auth.signUp({ email, password });
+  if (error) showAuthMsg(error.message, true);
+  else showAuthMsg('Account created. If email confirmation is on for this project, check your inbox before logging in.', false);
+});
+
+document.getElementById('authSignInBtn').addEventListener('click', async () => {
+  const email = document.getElementById('authEmail').value.trim();
+  const password = document.getElementById('authPassword').value;
+  if (!email || !password) { showAuthMsg('Enter your email and password.', true); return; }
+  const { error } = await sb.auth.signInWithPassword({ email, password });
+  if (error) showAuthMsg(error.message, true);
+});
+
+async function loadListings() {
+  const { data, error } = await sb.from('promo_listings').select('*').eq('active', true).order('name');
+  if (!error) listings = data || [];
+}
+
+async function loadBooks() {
+  const { data, error } = await sb.from('books').select('*, book_links(*)').order('created_at');
+  if (!error) {
+    books = (data || []).map(b => ({ ...b, links: b.book_links || [], genreTags: guessGenreTags(b.genre) }));
+    if (!activeBookId && books.length) activeBookId = books[0].id;
+    if (activeBookId && !books.find(b => b.id === activeBookId)) activeBookId = books.length ? books[0].id : null;
+  }
+}
+
+async function loadSubmissionsForActiveBook() {
+  if (!activeBookId) return;
+  const { data, error } = await sb.from('submissions').select('*').eq('book_id', activeBookId);
+  if (!error) (data || []).forEach(s => { submissionStatuses[`${s.book_id}::${s.listing_id}`] = s.status; });
+}
+
+async function loadProfile() {
+  if (!currentUser) { currentProfile = { paid: false }; return; }
+  const { data, error } = await sb.from('profiles').select('paid').eq('user_id', currentUser.id).single();
+  if (!error && data) currentProfile = data;
+}
+
+async function loadTrackedCount() {
+  if (!currentUser) { trackedCount = 0; return; }
+  const { count, error } = await sb.from('submissions').select('id', { count: 'exact', head: true }).neq('status', 'not_tracked');
+  if (!error) trackedCount = count || 0;
+}
+
+async function loadAll() {
+  await loadListings();
+  await loadBooks();
+  await loadSubmissionsForActiveBook();
+  await loadProfile();
+  await loadTrackedCount();
+  renderAll();
+}
+
+document.getElementById('addLinkBtn').addEventListener('click', () => {
+  const platform = document.getElementById('linkPlatform').value;
+  const url = document.getElementById('linkUrl').value.trim();
+  if (!url) return;
+  pendingLinks.push({ platform, url });
+  document.getElementById('linkUrl').value = '';
+  renderPendingLinks();
+});
+
+function renderPendingLinks() {
+  const wrap = document.getElementById('pendingLinks');
+  wrap.innerHTML = pendingLinks.map((l, i) => `
+    <div class="pending-link">
+      <span>${l.platform}: ${l.url}</span>
+      <button data-i="${i}" class="removeLinkBtn">remove</button>
+    </div>
+  `).join('');
+  wrap.querySelectorAll('.removeLinkBtn').forEach(b => {
+    b.addEventListener('click', e => { pendingLinks.splice(Number(e.target.dataset.i), 1); renderPendingLinks(); });
+  });
+}
+
+document.getElementById('addBookBtn').addEventListener('click', async () => {
+  if (!currentUser) return;
+  const title = document.getElementById('bookTitle').value.trim();
+  const author = document.getElementById('bookAuthor').value.trim();
+  const genre = document.getElementById('bookGenre').value.trim();
+  const priceStatus = document.getElementById('bookPriceStatus').value;
+  const description = document.getElementById('bookDescription').value.trim();
+  if (!title) { alert('Give the book a title first.'); return; }
+
+  const addBtn = document.getElementById('addBookBtn');
+  addBtn.disabled = true;
+  try {
+    const { data: bookRow, error } = await sb.from('books').insert({
+      user_id: currentUser.id, title, author, genre, price_status: priceStatus, description
+    }).select().single();
+    if (error) { alert('Could not save book: ' + error.message); return; }
+
+    if (pendingLinks.length) {
+      const { error: linkErr } = await sb.from('book_links').insert(
+        pendingLinks.map(l => ({ book_id: bookRow.id, platform: l.platform, url: l.url }))
+      );
+      if (linkErr) alert('Book saved, but a link failed to save: ' + linkErr.message);
+    }
+
+    pendingLinks = [];
+    activeBookId = bookRow.id;
+    document.getElementById('bookTitle').value = '';
+    document.getElementById('bookAuthor').value = '';
+    document.getElementById('bookGenre').value = '';
+    document.getElementById('bookDescription').value = '';
+    renderPendingLinks();
+    await loadBooks();
+    await loadSubmissionsForActiveBook();
+    renderAll();
+  } finally {
+    addBtn.disabled = false;
+  }
+});
+
+function renderBooks() {
+  const list = document.getElementById('bookList');
+  if (books.length === 0) {
+    list.innerHTML = '<div class="empty-hint">No books added yet — add one above to start tracking submissions for it.</div>';
+  } else {
+    list.innerHTML = books.map(b => `
+      <div class="book-chip ${b.id === activeBookId ? 'active' : ''}" data-id="${b.id}">
+        <div class="bctitle">${b.title}</div>
+        <div class="bcmeta">${b.author ? 'by ' + b.author + ' · ' : ''}${b.genre || 'No genre set'} · ${b.price_status}</div>
+        ${b.description ? `<div class="bcmeta" style="margin-top:4px;">${b.description.slice(0, 90)}${b.description.length > 90 ? '…' : ''}</div>` : ''}
+        <div class="bclinks">
+          ${b.links.map(l => `<a href="${l.url}" target="_blank" rel="noopener">${l.platform} ↗</a>`).join('') || '<span class="bcmeta">No sales links added</span>'}
+        </div>
+      </div>
+    `).join('');
+    list.querySelectorAll('.book-chip').forEach(chip => {
+      chip.addEventListener('click', async () => {
+        activeBookId = chip.dataset.id;
+        await loadSubmissionsForActiveBook();
+        renderAll();
+      });
+    });
+  }
+  renderBanner();
+}
+
+function renderBanner() {
+  const banner = document.getElementById('activeBanner');
+  const book = books.find(b => b.id === activeBookId);
+  if (!book) {
+    banner.innerHTML = (currentUser && books.length === 0) ? '' : (currentUser ? 'Click a book above to track submissions for it.' : '');
+    return;
+  }
+  const linksHtml = book.links.map(l =>
+    `<button class="btn small secondary copyBtn" data-url="${l.url}">Copy ${l.platform} link</button>`
+  ).join(' ');
+  banner.innerHTML = `Tracking for: <strong>${book.title}</strong> (${book.price_status}) &nbsp; ${linksHtml}`;
+  banner.querySelectorAll('.copyBtn').forEach(btn => {
+    btn.addEventListener('click', () => copyToClipboard(btn.dataset.url, btn));
+  });
+}
+
+function render() {
+  const q = document.getElementById('search').value.trim().toLowerCase();
+  const costF = document.getElementById('costFilter').value;
+  const genreF = document.getElementById('genreFilter').value;
+  const familyOnly = document.getElementById('familyOnly').checked;
+  const activeBook = books.find(b => b.id === activeBookId);
+
+  const filtered = listings.filter(l => {
+    if (q && !l.name.toLowerCase().includes(q)) return false;
+    if (costF !== 'all' && l.cost !== costF) return false;
+    if (genreF !== 'all' && !(l.genres || []).includes(genreF)) return false;
+    if (familyOnly && !l.family_friendly) return false;
+    return true;
+  });
+
+  document.getElementById('count').textContent = filtered.length + ' of ' + listings.length + ' listings' + (activeBook ? ` — tracking for "${activeBook.title}"` : '');
+
+  const atLimit = !currentProfile.paid && trackedCount >= FREE_TRACK_LIMIT;
+
+  const grid = document.getElementById('grid');
+  grid.innerHTML = '';
+  filtered.forEach(l => {
+    const statusKey = activeBook ? `${activeBook.id}::${l.id}` : null;
+    const status = statusKey ? (submissionStatuses[statusKey] || 'not_tracked') : 'not_tracked';
+    const isMatch = activeBook && activeBook.genreTags.some(t => (l.genres || []).includes(t)) &&
+      (activeBook.price_status !== 'free' || l.cost === 'free' || (l.price_text || '').toLowerCase().includes('free'));
+    const lockNew = activeBook && atLimit && status === 'not_tracked';
+    const card = document.createElement('div');
+    card.className = 'card' + (isMatch ? ' match' : '');
+    const statusLabels = { not_tracked: 'Not tracked', submitted: 'Submitted', accepted: 'Accepted', rejected: 'Rejected', live: 'Live' };
+    const selectDisabled = !activeBook || lockNew;
+    const selectTitle = !activeBook ? 'Add and select a book first' : (lockNew ? 'Free plan limit reached — upgrade to track more' : '');
+    card.innerHTML = `
+      ${isMatch ? '<span class="fit-badge">Good fit</span>' : ''}
+      <div class="card-top">
+        <h3>${l.name}</h3>
+        <span class="cost-tag ${l.cost === 'free' ? 'cost-free' : 'cost-paid'}">${l.cost === 'free' ? 'Free' : 'Paid'}</span>
+      </div>
+      <div class="meta">${l.price_text || ''}</div>
+      <div class="meta">${l.notes || ''}</div>
+      <div class="tags">${(l.genres || []).map(g => `<span class="tag">${g.replace('-', ' / ')}</span>`).join('')}${l.family_friendly ? '<span class="tag">family-friendly</span>' : ''}</div>
+      <div class="card-actions">
+        <a href="${l.url}" target="_blank" rel="noopener">Visit site →</a>
+        <button class="btn small secondary copyInfoBtn" data-listing-id="${l.id}" ${activeBook ? '' : 'disabled title="Add and select a book first"'}>Copy info</button>
+        <select data-listing-id="${l.id}" class="status-select" ${selectDisabled ? 'disabled' : ''} title="${selectTitle}">
+          ${Object.entries(statusLabels).map(([val, label]) => `<option value="${val}"${status===val?' selected':''}>${label}</option>`).join('')}
+        </select>
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+
+  document.querySelectorAll('.status-select').forEach(sel => {
+    sel.addEventListener('change', async e => {
+      if (!activeBook) return;
+      const listingId = e.target.dataset.listingId;
+      const status = e.target.value;
+      const key = `${activeBook.id}::${listingId}`;
+      const prevStatus = submissionStatuses[key] || 'not_tracked';
+      submissionStatuses[key] = status;
+      const { error } = await sb.from('submissions').upsert(
+        { book_id: activeBook.id, listing_id: listingId, status, updated_at: new Date().toISOString() },
+        { onConflict: 'book_id,listing_id' }
+      );
+      if (error) {
+        alert('Could not save that status change: ' + error.message);
+        submissionStatuses[key] = prevStatus;
+        return;
+      }
+      if (prevStatus === 'not_tracked' && status !== 'not_tracked') trackedCount++;
+      else if (prevStatus !== 'not_tracked' && status === 'not_tracked') trackedCount = Math.max(0, trackedCount - 1);
+      updateAuthUI();
+      render();
+    });
+  });
+
+  document.querySelectorAll('.copyInfoBtn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (!activeBook) return;
+      const priceLabel = { free: 'Free', discounted: 'Discounted (99¢–$2.99)', full: 'Full price' }[activeBook.price_status] || activeBook.price_status;
+      const linksText = activeBook.links.length ? activeBook.links.map(l => `${l.platform}: ${l.url}`).join('\n') : '(no links added)';
+      const text = [
+        `Title: ${activeBook.title}`,
+        `Author: ${activeBook.author || '(not set)'}`,
+        `Genre: ${activeBook.genre || '(not set)'}`,
+        `Price: ${priceLabel}`,
+        `Link(s):\n${linksText}`,
+        `Blurb: ${activeBook.description || '(not set)'}`,
+      ].join('\n');
+      copyToClipboard(text, btn);
+    });
+  });
+}
+
+function renderAll() {
+  renderBooks();
+  render();
+}
+
+['search','costFilter','genreFilter'].forEach(id => document.getElementById(id).addEventListener('input', render));
+document.getElementById('familyOnly').addEventListener('change', render);
+
+async function init() {
+  const { data: { session } } = await sb.auth.getSession();
+  currentUser = session?.user || null;
+  updateAuthUI();
+  await loadListings();
+  render();
+  if (currentUser) await loadAll();
+
+  if (new URLSearchParams(window.location.search).get('upgraded') === '1') {
+    showAuthMsg('Thanks for upgrading! It can take a few seconds to show up — refresh if you don\'t see "BookBeacon Full" yet.', false);
+  }
+
+  sb.auth.onAuthStateChange(async (event, session) => {
+    currentUser = session?.user || null;
+    updateAuthUI();
+    if (currentUser) {
+      await loadAll();
+    } else {
+      books = []; activeBookId = null; submissionStatuses = {};
+      currentProfile = { paid: false }; trackedCount = 0;
+      render();
+    }
+  });
+}
+
+init();
+</script>
+
+</body>
+</html>

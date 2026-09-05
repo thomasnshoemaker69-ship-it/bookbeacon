@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BookBeacon — Find where to promote your book</title>
+<style>
+  :root {
+    --bg: #faf8f5;
+    --card: #ffffff;
+    --ink: #2b2420;
+    --ink-soft: #6b6259;
+    --line: #e8e1d8;
+    --accent: #7a4f9e;
+    --accent-soft: #f1e9f7;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    line-height: 1.6;
+  }
+  .wrap { max-width: 720px; margin: 0 auto; padding: 60px 20px 80px; }
+  .badge {
+    display: inline-block;
+    background: var(--accent-soft);
+    color: var(--accent);
+    font-size: 0.78rem;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: 999px;
+    margin-bottom: 18px;
+  }
+  h1 { font-size: 2rem; margin: 0 0 10px; }
+  .tagline { font-size: 1.1rem; color: var(--ink-soft); margin: 0 0 30px; }
+  .price-tag {
+    display: inline-block;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 14px 20px;
+    font-size: 1rem;
+    margin-bottom: 34px;
+  }
+  .price-tag strong { font-size: 1.4rem; color: var(--accent); }
+  h2 { font-size: 1.2rem; margin: 36px 0 12px; }
+  p { margin: 0 0 14px; }
+  ul { margin: 0 0 14px; padding-left: 20px; }
+  li { margin-bottom: 6px; }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin: 10px 0 24px;
+  }
+  footer {
+    border-top: 1px solid var(--line);
+    margin-top: 50px;
+    padding-top: 24px;
+    font-size: 0.85rem;
+    color: var(--ink-soft);
+  }
+  footer a { color: var(--accent); }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #1c1a18; --card: #26231f; --ink: #f1ece4; --ink-soft: #a89e91;
+      --line: #3a352e; --accent: #c79fe8; --accent-soft: #332a3d;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #1c1a18; --card: #26231f; --ink: #f1ece4; --ink-soft: #a89e91;
+    --line: #3a352e; --accent: #c79fe8; --accent-soft: #332a3d;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <span class="badge">For indie & self-published authors</span>
+  <h1>BookBeacon</h1>
+  <p class="tagline">Find where to promote your book — and actually keep track of it.</p>
+
+  <div class="price-tag">One-time purchase: <strong>$15</strong> — no subscription, ever.</div>
+
+  <p style="margin-bottom:12px;"><a href="/app.html" style="display:inline-block;background:var(--accent);color:#fff;text-decoration:none;font-weight:700;padding:12px 22px;border-radius:8px;">Get started — sign up free</a></p>
+  <p style="margin-bottom:34px;"><a href="/directory.html" style="color:var(--accent);font-weight:600;text-decoration:none;">Browse the free directory first, no account needed →</a></p>
+
+  <h2>What it does</h2>
+  <p>BookBeacon is a filterable directory of book promotion sites — free and paid listing services, genre-specific newsletters, and discount/freebie sites — organized by genre fit, platform requirements (Amazon-exclusive vs. wide), and cost. Unlike a static blog post listing "100 free book promotion sites," BookBeacon's directory is filterable, gets kept current, and comes with a personal tracker: for each of your books, mark which sites you've submitted to, whether you were accepted, and when it went live.</p>
+
+  <div class="card">
+    <h2 style="margin-top:0;">Who it's for</h2>
+    <p>Self-published and indie authors who run their own book promotions rather than going through a traditional publisher's marketing team — especially anyone managing more than one book or juggling submissions across multiple promo sites.</p>
+  </div>
+
+  <h2>What you get for $15, once</h2>
+  <ul>
+    <li>Unlimited books and pen names</li>
+    <li>The full, filterable promo-site directory</li>
+    <li>A submission tracker per book (Not submitted / Submitted / Accepted / Rejected / Live)</li>
+    <li>One-click "copy submission info" — assembles your book's title, author, genre, price, sales links, and blurb into one paste-ready block for each site's submission form</li>
+  </ul>
+  <p>A free tier is also available with a limited number of tracked listings, so you can try it before buying.</p>
+
+  <h2>Support &amp; policies</h2>
+  <p><strong>Contact:</strong> <a href="mailto:thomasnshoemaker69@gmail.com">thomasnshoemaker69@gmail.com</a></p>
+  <p><strong>Refunds:</strong> The free plan lets you try BookBeacon — directory browsing, up to 5 tracked listings — before you buy, so we ask that you use it to make sure it's a fit first. Because the $15 unlocks permanent access, purchases are final once made. If something's broken on our end (a bug, a billing error), email us and we'll make it right.</p>
+  <p><strong>Cancellations:</strong> Not applicable — BookBeacon is a one-time purchase, not a subscription. There is nothing to cancel.</p>
+
+  <footer>
+    &copy; <span id="year"></span> BookBeacon. A tool built by an indie author's household, for indie authors.
+  </footer>
+</div>
+<script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+</body>
+</html>
